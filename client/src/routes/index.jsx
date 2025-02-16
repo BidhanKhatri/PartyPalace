@@ -1,0 +1,95 @@
+import { createBrowserRouter } from "react-router-dom";
+import HeroSection from "../pages/HeroSection";
+import RecentPalace from "../pages/RecentPalace";
+import App from "../App";
+import Layout from "../layouts/Layout";
+import HomePage from "../layouts/HomePage";
+import LoginPage from "../pages/LoginPage";
+import ProtectedRoute from "./ProtectedRoute";
+import BookingPage from "../pages/BookingPage";
+import SearchPage from "../pages/SearchPage";
+import IsAdminRoute from "./IsAdminRoute";
+import PageNotFound from "../pages/PageNotFound";
+import AdminLayout from "../layouts/AdminLayout";
+import Dashboard from "../adminPages/Dashboard";
+import CreatePartyPalace from "../adminPages/CreatePartyPalace";
+import DisplayMyPartyPalaces from "../adminPages/DisplayMyPartyPalaces";
+import NotificationPage from "../adminPages/NotificationPage";
+import UserStatusListPage from "../adminPages/UserStatusListPage";
+import ChatPage from "../pages/ChatPage";
+import AdminChatPage from "../adminPages/AdminChatPage";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Layout />,
+    children: [
+      {
+        path: "",
+        element: <HomePage />,
+      },
+      {
+        path: "booking/:id",
+        element: <BookingPage />,
+      },
+      {
+        path: "search",
+        element: <SearchPage />,
+      },
+      {
+        path: "chat/:receiverId/:partyPalaceId",
+        element: <ChatPage />,
+      },
+    ],
+  },
+
+  {
+    path: "/login",
+    element: <LoginPage />,
+  },
+  {
+    path: "/admin",
+    element: <IsAdminRoute />,
+    children: [
+      {
+        path: "",
+        element: <AdminLayout />,
+        children: [
+          {
+            path: "dashboard",
+            element: <Dashboard />,
+          },
+          {
+            path: "create-partypalace",
+            element: <CreatePartyPalace />,
+          },
+          {
+            path: "display-partypalace",
+            element: <DisplayMyPartyPalaces />,
+          },
+          {
+            path: "booking-userstatus",
+            element: <NotificationPage />,
+            children: [
+              {
+                path: "list",
+                element: <UserStatusListPage />,
+              },
+            ],
+          },
+          {
+            path: "chat",
+            element: <AdminChatPage />,
+          },
+        ],
+      },
+    ],
+  },
+
+  {
+    path: "*",
+    element: <PageNotFound />,
+  },
+]);
+
+export default router;

@@ -1,0 +1,12 @@
+.swiper-button-next, .swiper-button-prev {
+    color: #FBAD34 !important; /* Change color */
+    
+  }
+
+  
+.poppins-semibold {
+    font-family: "Poppins", serif;
+    font-weight: 600;
+    font-style: normal;
+  }
+
