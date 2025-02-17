@@ -567,3 +567,4 @@ export const getTopLikedPartyPalace = async (_, res) => {
     });
   }
 };
+

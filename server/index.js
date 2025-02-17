@@ -10,6 +10,7 @@ import adminRouter from "./routes/admin.route.js";
 import messageRouter from "./routes/message.route.js";
 import aiRouter from "./routes/ai.route.js";
 import superAdminRouter from "./routes/superadmin.route.js";
+import globalRouter from "./routes/global.route.js";
 
 const app = express();
 dotenv.config();
@@ -34,6 +35,7 @@ app.use("/api/booking", bookingRouter);
 app.use("/api/message", messageRouter);
 app.use("/api/ai", aiRouter);
 app.use("/api/superadmin", superAdminRouter);
+app.use("/api/global", globalRouter);
 
 const PORT = process.env.PORT || 4444;
 
