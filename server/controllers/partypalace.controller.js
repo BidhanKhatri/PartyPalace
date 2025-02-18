@@ -255,7 +255,7 @@ export const getAllPartyPalace = async (req, res) => {
       error: false,
     });
   } catch (error) {
-    return res.staus(500).json({
+    return res.status(500).json({
       msg: error.message || error.msg || "Internal server error",
       error: true,
       success: false,
@@ -484,7 +484,7 @@ export const getPartyPalaceByCategory = async (req, res) => {
 //get party palace by price range and category
 export const getPartyPalaceByFilter = async (req, res) => {
   try {
-    let { min, max, page, limit, category } = req.body;
+    let { min, max, page, limit, category, capacity } = req.body;
 
     if (!page) page = 1;
     if (!limit) limit = 10;
@@ -504,6 +504,10 @@ export const getPartyPalaceByFilter = async (req, res) => {
 
     if (category && category.length > 0) {
       query.category = { $in: category };
+    }
+
+    if (capacity) {
+      query.capacity = { $gte: parseInt(capacity) };
     }
 
     const [totalCount, findPP] = await Promise.all([
@@ -567,4 +571,3 @@ export const getTopLikedPartyPalace = async (_, res) => {
     });
   }
 };
-

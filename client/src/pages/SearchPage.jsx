@@ -37,6 +37,7 @@ const SearchPage = () => {
             </div>
           ) : (
             // Venue Cards Grid
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full p-4 h-[calc(100vh-64px)] overflow-x-none overflow-y-auto">
               {searchData.map((sd) => (
                 <div key={sd._id} className="w-full">
@@ -54,6 +55,10 @@ const SearchPage = () => {
                   />
                 </div>
               ))}
+              {/* <div className="w-full col-span-3 flex items-center justify-center gap-2">
+                <button className="bg-pink-500 text-white p-2">prev</button>
+                <button className="bg-green-500 text-white p-2">next</button>
+              </div> */}
             </div>
           )}
         </div>

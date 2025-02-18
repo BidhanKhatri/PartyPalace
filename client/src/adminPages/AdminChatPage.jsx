@@ -22,7 +22,7 @@ const AdminChatPage = () => {
         </div>
       ) : (
         <div className="grow flex flex-col ">
-          <AdminChatHeader />
+          <AdminChatHeader />``
           <div className="grow ">
             <AdminChatBody />
           </div>

@@ -18,6 +18,7 @@ export const UserProvider = ({ children }) => {
   const [message, setMessage] = useState([]);
   const [topLiked, setTopLiked] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
+  const [allCategory, setAllCategory] = useState([]);
   const [otherCategoryData, setOtherCategoryData] = useState({});
   const [loading, setLoading] = useState(false);
   const { token } = useSelector((state) => state?.user);
@@ -77,10 +78,10 @@ export const UserProvider = ({ children }) => {
   };
 
   //api to get search data
-  const getSearchData = async (search) => {
+  const getSearchData = async (search, page = 1) => {
     try {
       setLoading(true);
-      const res = await axios.get("/proxy/api/partypalace/get-all", {
+      const res = await axios.get(`/proxy/api/partypalace/get-all?page=${page}&limit=12`, {
         params: { search },
       });
       if (res.data && res.data.success) {
@@ -194,11 +195,17 @@ export const UserProvider = ({ children }) => {
         config
       );
       if (res.data && res.data.success) {
-        setCategoryData(res.data.data);
+        // setCategoryData(res.data.data);
+        setCategoryData((prev) => ({
+          ...prev,
+          [category]: res.data.data,
+        }));
         setOtherCategoryData((prev) => ({
           ...prev,
-          totalPage: res.data.totalPage,
-          totalCount: res.data.totalCount,
+          [category]: {
+            totalPage: res.data.totalPage,
+            totalCount: res.data.totalCount,
+          },
         }));
       }
     } catch (error) {
@@ -227,6 +234,19 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  //get all category
+  const getAllCategory = async () => {
+    try {
+      const res = await axios.get("/proxy/api/global/category/get");
+
+      if (res.data && Array.isArray(res.data.data)) {
+        setAllCategory(res.data.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const value = {
     bookingData,
     searchData,
@@ -235,6 +255,7 @@ export const UserProvider = ({ children }) => {
     topLiked,
     categoryData,
     otherCategoryData,
+    allCategory,
     getBookingData,
     fetchAllPartyPalace,
     handleCancel,
@@ -246,7 +267,7 @@ export const UserProvider = ({ children }) => {
     getPartyPalaceByFilter,
     getTopLikedPartyPalace,
     getPartyPalaceByCategory,
-  
+    getAllCategory,
   };
 
   return <userContext.Provider value={value}>{children}</userContext.Provider>;
