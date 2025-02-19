@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { set } from "mongoose";
 
 const partypalaceSlice = createSlice({
   name: "partypalace",
@@ -11,8 +10,13 @@ const partypalaceSlice = createSlice({
   },
   reducers: {
     setPartyPalace: (state, action) => {
-      state.partypalace = action?.payload;
+      if (Array.isArray(action.payload)) {
+        state.partypalace = action.payload;
+      } else {
+        state.partypalace = [action.payload, ...state.partypalace];
+      }
     },
+
     setSelectedPartyPalace: (state, action) => {
       state.selectedPartyPalace = action?.payload;
     },

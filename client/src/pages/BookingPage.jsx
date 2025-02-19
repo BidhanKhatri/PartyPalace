@@ -1,17 +1,22 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
-import {
-  setPartyPalace,
-  setSelectedPartyPalace,
-} from "../redux/features/partypalaceSlice";
+import { setSelectedPartyPalace } from "../redux/features/partypalaceSlice";
 import axios from "axios";
 import DatePicker from "react-datepicker";
 import { setSelectedChat } from "../redux/features/userSlice";
 import "react-datepicker/dist/react-datepicker.css";
-import { FaHeart } from "react-icons/fa";
 import { toast } from "react-toastify";
 import userContext from "../context/userContext";
+import {
+  FaHeart,
+  FaMapMarkerAlt,
+  FaUsers,
+  FaClock,
+  FaChevronLeft,
+  FaChevronRight,
+} from "react-icons/fa";
+import Review from "../components/Review";
 
 const BookingPage = () => {
   const { partypalace, selectedPartyPalace } = useSelector(
@@ -19,50 +24,36 @@ const BookingPage = () => {
   );
   const { token } = useSelector((state) => state?.user);
   const { getBookingData } = useContext(userContext);
-  //   console.log(partypalace);
   const dispatch = useDispatch();
   const { id } = useParams();
   const [imageIndex, setImageIndex] = useState(0);
   const [startDate, setStartDate] = useState(null);
   const [hoursBooked, setHoursBooked] = useState(1);
+  const [isLiked, setIsLiked] = useState(false);
+  console.log("selectedPartyPalace ", selectedPartyPalace);
 
   useEffect(() => {
-    fetchAllPartyPalace();
+    fetchOnlyOne();
   }, []);
-
-  // Find the selected party palace only if Redux has data
-
-  useEffect(() => {
-    if (partypalace?.length > 0) {
-      const selectedPP = partypalace.find((el) => el._id === id);
-      if (selectedPP) {
-        dispatch(setSelectedPartyPalace(selectedPP));
-      }
-    }
-  }, [id, partypalace, dispatch]);
-
 
   const handleImgIndex = (index) => {
     setImageIndex(index);
   };
 
-  const fetchAllPartyPalace = async () => {
+  const fetchOnlyOne = async () => {
     try {
-      const res = await axios.get("/proxy/api/partypalace/get-all");
+      const res = await axios.get(`/proxy/api/partypalace/get-one/${id}`);
       if (res && res.data.success) {
-        dispatch(setPartyPalace(res.data.data));
+        dispatch(setSelectedPartyPalace(res.data.data));
       }
     } catch (error) {
       console.log(error);
     }
   };
 
-  // Handle case where data is not available yet
   if (!selectedPartyPalace) {
-    return <div>Loading...</div>;
+    return <div className="text-center mt-10 text-gray-500">Loading...</div>;
   }
-
-  //making api call
 
   const payload = {
     partyPalaceId: selectedPartyPalace._id,
@@ -70,7 +61,6 @@ const BookingPage = () => {
     hoursBooked: hoursBooked,
     totalPrice: selectedPartyPalace.pricePerHour * hoursBooked,
   };
-  // console.log("booking payload", payload);
 
   const handleBooking = async () => {
     try {
@@ -96,8 +86,6 @@ const BookingPage = () => {
     }
   };
 
-  //function to dispatch the selected party palace name, user name and user id
-
   const dispatchSelectedPartyPalace = () => {
     const payload = {
       partyPalaceName: selectedPartyPalace.name,
@@ -108,161 +96,225 @@ const BookingPage = () => {
     localStorage.setItem("selectedChat", JSON.stringify(payload));
   };
 
+  const nextImage = () => {
+    setImageIndex((prevIndex) =>
+      prevIndex === selectedPartyPalace.images.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  const prevImage = () => {
+    setImageIndex((prevIndex) =>
+      prevIndex === 0 ? selectedPartyPalace.images.length - 1 : prevIndex - 1
+    );
+  };
+
+  if (!selectedPartyPalace) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-[#FBAD34]"></div>
+      </div>
+    );
+  }
+
+  const toggleLike = () => {
+    setIsLiked(!isLiked);
+    // Here you would typically make an API call to update the like status
+    toast.success(isLiked ? "Removed from favorites" : "Added to favorites");
+  };
+
   return (
-    <section className="mt-14 max-w-7xl mx-auto " >
-      <div className="flex ">
-        <div className="flex-1 ">
-          <div className="p-6 ">
-            <div className="h-[450px] max-w-xl ring-1 ring-[#FBAD34] shdaow-md">
+    <>
+      {/* new UI */}
+
+      <section className="mt-14 max-w-7xl mx-auto px-6">
+        <div className="grid lg:grid-cols-2 gap-10">
+          {/* Left Section: Image Gallery */}
+          <div className="space-y-4  flex flex-col justify-center">
+            <div className="relative h-[450px] rounded-xl overflow-hidden shadow-lg">
               <img
-                src={selectedPartyPalace.images[imageIndex]}
+                src={
+                  selectedPartyPalace.images[imageIndex] || "/placeholder.svg"
+                }
                 alt={selectedPartyPalace.name}
                 className="w-full h-full object-cover"
               />
+              <button
+                onClick={prevImage}
+                className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition cursor-pointer"
+              >
+                <FaChevronLeft />
+              </button>
+              <button
+                onClick={nextImage}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition cursor-pointer"
+              >
+                <FaChevronRight />
+              </button>
             </div>
-
-            <div className="h-20 max-w-xl  mt-4 flex items-center justify-center gap-4">
-              {selectedPartyPalace.images.map((im, i) => (
+            <div className="flex gap-4 overflow-x-auto pb-2">
+              {selectedPartyPalace.images.map((image, index) => (
                 <div
-                  onClick={() => handleImgIndex(i)}
-                  key={i}
-                  className="h-full w-56 border border-neutral-400 bg-neutral-100 cursor-pointer hover:scale-110 transition-all duration-300 shadow-md"
+                  key={index}
+                  onClick={() => handleImgIndex(index)}
+                  className={`h-20 w-24 flex-shrink-0 cursor-pointer border-2 rounded-md overflow-hidden transition-all duration-300 ${
+                    imageIndex === index
+                      ? "border-[#FBAD34] scale-100"
+                      : "border-gray-300 hover:border-[#FBAD34]"
+                  }`}
                 >
                   <img
-                    src={selectedPartyPalace.images[i]}
-                    alt={selectedPartyPalace.name[i]}
-                    className="w-full h-full object-scale-down"
+                    src={image || "/placeholder.svg"}
+                    alt={`Preview ${index}`}
+                    className="w-full h-full object-cover"
                   />
                 </div>
               ))}
             </div>
           </div>
-        </div>
 
-        <div className="flex-1">
-          <div className="px-6 py-4 ">
-            <div className="flex items-center justify-between">
-              <p className="font-bold text-4xl tracking-wider text-neutral-600">
-                {selectedPartyPalace.name}
-              </p>
-              <span className="flex items-center gap-2">
-                {selectedPartyPalace.likes}
-                <FaHeart className="text-red-500" />
-              </span>
-            </div>
-            <p className="mt-2">{selectedPartyPalace.description}</p>
+          {/* Right Section: Booking Details */}
+          <div className="space-y-4  mt-4">
             <div>
-              <p className="text-gray-500 text-sm mt-2">
-                📍 {selectedPartyPalace.location}
-              </p>
-              <p className="text-gray-500 text-sm">
-                👥 Capacity: {selectedPartyPalace.capacity}
-              </p>
-              <p className="text-green-600 font-semibold mt-2 text-2xl">
-                💰 NPR {selectedPartyPalace.pricePerHour} / hour
+              <div className="flex justify-between items-center">
+                <h1 className="text-3xl lg:text-4xl font-bold text-neutral-800">
+                  {selectedPartyPalace.name}
+                </h1>
+                <button
+                  onClick={toggleLike}
+                  className={`text-2xl transition-colors duration-300 ${
+                    isLiked
+                      ? "text-red-500"
+                      : "text-gray-400 hover:text-red-500"
+                  }`}
+                >
+                  <FaHeart />
+                </button>
+              </div>
+              <p className="mt-2 text-gray-600 leading-relaxed">
+                {selectedPartyPalace.description}
               </p>
             </div>
-            <div className="mt-2 flex gap-10">
-              <div className="max-w-64">
-                <DatePicker
-                  inline
-                  selected={startDate}
-                  onChange={(date) => setStartDate(date)}
-                  showMonthDropdown
-                  showYearDropdown
-                  dropdownMode="select"
-                />
+
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="flex items-center space-x-2 text-gray-600">
+                <FaMapMarkerAlt className="text-[#FBAD34]" />
+                <span>{selectedPartyPalace.location}</span>
+              </div>
+              <div className="flex items-center space-x-2 text-gray-600">
+                <FaUsers className="text-[#FBAD34]" />
+                <span>Capacity: {selectedPartyPalace.capacity}</span>
+              </div>
+              <div className="flex items-center space-x-2 text-gray-600">
+                <FaClock className="text-[#FBAD34]" />
+                <span>NPR {selectedPartyPalace.pricePerHour} / hour</span>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+              <h2 className="text-xl font-semibold mb-4">Book Your Event</h2>
+              <div className="grid md:grid-cols-2 ">
                 <div>
-                  {/* <span className="text-neutral-600">
-                    🕒Enter Total Booking Hours
-                  </span> */}
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Select Date
+                  </label>
+                  <DatePicker
+                    inline
+                    selected={startDate}
+                    onChange={(date) => setStartDate(date)}
+                    minDate={new Date()}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-[#FBAD34] focus:border-[#FBAD34]"
+                    placeholderText="Choose a date"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="hoursBooked"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Booking Hours
+                  </label>
                   <input
+                    id="hoursBooked"
                     type="number"
-                    className="my-2 outline-none border border-neutral-400 focus:border-[#FBAD34] w-full rounded-sm p-1.5 placeholder:text-sm"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-[#FBAD34] focus:border-[#FBAD34]"
                     placeholder="Enter total booking hours"
-                    // value={hoursBooked}
+                    value={hoursBooked}
                     min="1"
                     max="12"
-                    required
-                    onChange={(e) => setHoursBooked(e.target.value)}
+                    onChange={(e) =>
+                      setHoursBooked(
+                        Math.max(
+                          1,
+                          Math.min(12, Number.parseInt(e.target.value) || 1)
+                        )
+                      )
+                    }
                   />
-                </div>
-
-                <div className="bg-black/10 p-2 rounded-md">
-                  <div className="mb-1 ">
-                    📅{" "}
-                    <span className="font-semibold text-neutral-600">
-                      Selected Date:{" "}
-                    </span>{" "}
-                    {startDate === null ? (
-                      <span className="text-red-500 text-xs ">
-                        No Date Selected
+                  <div className="mt-4 bg-white p-4 rounded-md shadow-sm text-sm space-y-3 ">
+                    <p className="flex justify-between py-2 border-b border-gray-100">
+                      <span>Selected Date:</span>
+                      <span className="font-semibold">
+                        {startDate
+                          ? startDate.toLocaleDateString()
+                          : "Not selected"}
                       </span>
-                    ) : (
-                      new Date(startDate).toISOString().split("T")[0]
-                    )}
+                    </p>
+                    <p className="flex justify-between py-2 border-b border-gray-100">
+                      <span>Total Hours:</span>
+                      <span className="font-semibold">{hoursBooked} hours</span>
+                    </p>
+                    <p className="flex justify-between py-2 text-lg font-bold text-[#FBAD34]">
+                      <span>Total Price:</span>
+                      <span>
+                        NPR {selectedPartyPalace.pricePerHour * hoursBooked}
+                      </span>
+                    </p>
                   </div>
-                  <p className="font-semibold text-neutral-600 mb-1">
-                    🕒Total Hours:{" "}
-                    <span className="text-xs"> {hoursBooked} hours</span>
-                  </p>
-                  <p className="font-semibold text-neutral-600">
-                    💸Total Price:{" "}
-                    <span className="text-xs">
-                      {" "}
-                      NPR {selectedPartyPalace.pricePerHour * hoursBooked}{" "}
-                    </span>
-                  </p>
                 </div>
               </div>
+            </div>
 
-              <div>
-                <p className="text-gray-500 text-xl font-semibold">
-                  Choose a date and time to book
-                </p>
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={handleBooking}
-                    disabled={startDate === null}
-                    className={`${
-                      startDate === null
-                        ? "bg-neutral-400 cursor-not-allowed"
-                        : "bg-[#FBAD34] cursor-pointer scale-105 transition-all duration-300 ease-in-out"
-                    } text-white px-4 py-2 rounded-md w-full mt-4`}
-                  >
-                    Book
-                  </button>
-                  <Link
-                    to={`/chat/${selectedPartyPalace.createdBy._id}/${selectedPartyPalace._id}`}
-                    onClick={dispatchSelectedPartyPalace}
-                    className="text-center bg-lime-500 text-white px-4 py-2 rounded-md w-full mt-4"
-                  >
-                    Chat
-                  </Link>
-                </div>
-                <div className="mt-4 rounded-md overflow-hidden border border-neutral-300 bg-neutral-100">
-                  <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3531.2148396731245!2d85.33767297485124!3d27.741518776162994!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb194f5011d8d7%3A0x949bc3536d79803!2sAustralian%20Embassy!5e0!3m2!1sen!2snp!4v1739001392095!5m2!1sen!2snp"
-                    width="280"
-                    height="200"
-                    allowfullscreen=""
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                  />
-                </div>
-                <p className="font-semibold text-neutral-500 mt-2">
-                  📅 Unavailable Dates:
-                </p>
-                <div className="flex items-center gap-4 flex-wrap mt-4 max-w-3xs">
-                  <span className="w-20 h-4 bg-gray-200 rounded-md p-1"></span>
-                  <span className="w-20 h-4 bg-gray-200 rounded-md p-1"></span>
-                </div>
-              </div>
+            <div className="flex gap-4">
+              <button
+                onClick={handleBooking}
+                disabled={!startDate}
+                className={`flex-1 py-3 rounded-lg text-white font-medium transition transform ${
+                  startDate
+                    ? "bg-[#FBAD34] hover:bg-[#E99D23] hover:scale-105"
+                    : "bg-gray-300 cursor-not-allowed"
+                }`}
+              >
+                Book Now
+              </button>
+              <Link
+                to={`/chat/${selectedPartyPalace.createdBy._id}/${selectedPartyPalace._id}`}
+                onClick={dispatchSelectedPartyPalace}
+                className="flex-1 text-center py-3 bg-lime-500 text-white rounded-lg font-medium hover:bg-lime-600 transition transform hover:scale-105"
+              >
+                Chat with Host
+              </Link>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+        <div className="mt-6  w-full">
+          <h3 className="text-lg font-semibold mb-2">Location</h3>
+          <div className="rounded-lg overflow-hidden shadow-md">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3531.2148396731245!2d85.33767297485124!3d27.741518776162994!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb194f5011d8d7%3A0x949bc3536d79803!2sAustralian%20Embassy!5e0!3m2!1sen!2snp!4v1739001392095!5m2!1sen!2snp"
+              width="100%"
+              height="250"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+            ></iframe>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <Review />
+        </div>
+      </section>
+    </>
   );
 };
 

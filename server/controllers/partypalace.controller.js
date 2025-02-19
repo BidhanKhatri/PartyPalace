@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import PartyPalace from "../models/partypalace.model.js";
 import uploadImageCloudinary from "../utils/uploadImageCloud.js";
+import { io } from "../utils/socketConn.js";
 
 //create a party palace controller
 export const createPartyPalaceController = async (req, res) => {
@@ -43,6 +44,9 @@ export const createPartyPalaceController = async (req, res) => {
       createdBy: userId,
     });
     await createPartyPalace.save();
+
+    //socket logic for real time update
+    io.emit("createdPartyPalace", createPartyPalace);
 
     return res.status(200).json({
       msg: "party palace created successfully",
@@ -172,7 +176,9 @@ export const getOnePartyPalaceController = async (req, res) => {
       });
     }
 
-    const findPartyPalace = await PartyPalace.findById(id);
+    const findPartyPalace = await PartyPalace.findById(id).populate(
+      "createdBy"
+    );
 
     return res.status(200).json({
       msg: "party palace found successfully",
@@ -379,6 +385,9 @@ export const deletePartyPalaceController = async (req, res) => {
     const deletePartyPalace = await PartyPalace.findByIdAndDelete(
       partyPalaceId
     );
+
+    //socket implementation to delete party palace at realtime
+    io.emit("deletePartyPalace", deletePartyPalace);
 
     if (deletePartyPalace) {
       return res.status(200).json({

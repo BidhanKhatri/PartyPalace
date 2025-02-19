@@ -33,7 +33,7 @@ const Navbar = () => {
   const bookedPartyPalaceLength = useSelector(
     (state) => state.partypalace.bookedPartyPalaceLength
   );
-  
+
   const { bookingData, getBookingData } = useContext(userContext);
   // console.log(location);
 

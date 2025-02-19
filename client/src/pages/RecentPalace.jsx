@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setPartyPalace } from "../redux/features/partypalaceSlice";
 import SubHeading from "../components/SubHeading";
 import { toast } from "react-toastify";
+import { socket } from "../../socket";
 
 const RecentPalace = () => {
   const dispatch = useDispatch();
@@ -15,6 +16,7 @@ const RecentPalace = () => {
 
   // console.log("token at recent palace", token);
   // console.log("userId at recent palace", userId);
+  // console.log("all partypalace", partypalace);
 
   const toggleLike = (partyPalaceId) => {
     setIsLiked(!isLiked);
@@ -45,6 +47,34 @@ const RecentPalace = () => {
     }
   };
 
+  //socket implementation to get realtime fetch party palace
+  useEffect(() => {
+    const handleSocketEvent = (createdPP) => {
+      // console.log("Socket created party palace:", createdPP);
+
+      const exists = partypalace.some((pp) => pp._id === createdPP._id);
+      if (!exists) {
+        dispatch(setPartyPalace([createdPP, ...partypalace]));
+      }
+    };
+
+    const handleDeletePartyPalaceSocketEvent = (deletePartyPalace) => {
+      const filterData = partypalace.filter(
+        (pp) => pp._id !== deletePartyPalace._id
+      );
+      dispatch(setPartyPalace(filterData));
+    };
+
+    socket.on("createdPartyPalace", handleSocketEvent);
+    socket.on("deletePartyPalace", handleDeletePartyPalaceSocketEvent);
+
+    return () => {
+      // Cleanup listener on component unmount
+      socket.off("createdPartyPalace", handleSocketEvent);
+      socket.off("deletedPartyPalace", handleDeletePartyPalaceSocketEvent);
+    };
+  }, [dispatch, partypalace]); // Only attach once, when component mounts
+
   useEffect(() => {
     fetchAllPartyPalace();
   }, []);
@@ -56,25 +86,47 @@ const RecentPalace = () => {
       </p>
       <SubHeading />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4  overflow-y-hidden   pb-4 ">
-        {partypalace.map((pp, index) => (
-          <div key={pp._id}>
-            <VenueCard
-              partyPalaceId={pp._id}
-              name={pp.name}
-              description={pp.description}
-              location={pp.location}
-              capacity={pp.capacity}
-              pricePerHour={pp.pricePerHour}
-              unavailableDates={pp.unavailableDates}
-              images={pp.images}
-              toggleLike={toggleLike}
-              isLiked={isLiked}
-              userId={userId}
-              category={pp.category}
-              likedBy={pp.likedBy}
-            />
-          </div>
-        ))}
+        {/* implemented this logic if there is more than 8 partypalace in the array for maintaing UI of pagination, as I am sending limit 8 for this pagination */}
+        {partypalace.length > 8 &&
+          partypalace.slice(0, partypalace.length - 1).map((pp, index) => (
+            <div key={pp._id}>
+              <VenueCard
+                partyPalaceId={pp._id}
+                name={pp.name}
+                description={pp.description}
+                location={pp.location}
+                capacity={pp.capacity}
+                pricePerHour={pp.pricePerHour}
+                unavailableDates={pp.unavailableDates}
+                images={pp.images}
+                toggleLike={toggleLike}
+                isLiked={isLiked}
+                userId={userId}
+                category={pp.category}
+                likedBy={pp.likedBy}
+              />
+            </div>
+          ))}
+        {partypalace.length <= 8 &&
+          partypalace.map((pp, index) => (
+            <div key={pp._id}>
+              <VenueCard
+                partyPalaceId={pp._id}
+                name={pp.name}
+                description={pp.description}
+                location={pp.location}
+                capacity={pp.capacity}
+                pricePerHour={pp.pricePerHour}
+                unavailableDates={pp.unavailableDates}
+                images={pp.images}
+                toggleLike={toggleLike}
+                isLiked={isLiked}
+                userId={userId}
+                category={pp.category}
+                likedBy={pp.likedBy}
+              />
+            </div>
+          ))}
       </div>
     </section>
   );

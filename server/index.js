@@ -11,8 +11,10 @@ import messageRouter from "./routes/message.route.js";
 import aiRouter from "./routes/ai.route.js";
 import superAdminRouter from "./routes/superadmin.route.js";
 import globalRouter from "./routes/global.route.js";
+import { app, server } from "./utils/socketConn.js";
+import reviewRouter from "./routes/review.route.js";
 
-const app = express();
+// const app = express();
 dotenv.config();
 
 //middleware
@@ -36,10 +38,11 @@ app.use("/api/message", messageRouter);
 app.use("/api/ai", aiRouter);
 app.use("/api/superadmin", superAdminRouter);
 app.use("/api/global", globalRouter);
+app.use("/api/review", reviewRouter);
 
 const PORT = process.env.PORT || 4444;
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   connectDB();
   console.log(`Server is running on port ${PORT}`);
 });

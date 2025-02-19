@@ -56,7 +56,7 @@ const VenueCard = ({
         <p className="text-gray-500 text-sm mt-2">📍 {location}</p>
         <p className="text-gray-500 text-sm mt-2">👥 Capacity: {capacity}</p>
         <div className=" mt-2 flex gap-2 flex-wrap ">
-          {category.map((ca, i) => (
+          {category?.map((ca, i) => (
             <span
               key={i}
               className="bg-neutral-200 px-2 py-1 rounded-md text-xs text-neutral-700"
