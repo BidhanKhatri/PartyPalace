@@ -82,9 +82,17 @@ export const getReviewController = async (req, res) => {
       });
     }
 
-    const findReview = await Review.findById(partyPalaceId).populate(
+    const findReview = await Review.find({ partyPalaceId }).populate(
       "reviewBy"
     );
+
+    if (findReview.length === 0) {
+      return res.status(400).json({
+        msg: "No review found",
+        error: true,
+        success: false,
+      });
+    }
 
     return res.status(200).json({
       msg: "Review found successfully",
