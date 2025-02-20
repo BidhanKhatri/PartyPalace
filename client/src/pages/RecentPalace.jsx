@@ -80,7 +80,7 @@ const RecentPalace = () => {
   }, []);
 
   return (
-    <section className="max-w-7xl mx-auto px-6 bg-gradient-to-b from-orange-100 to-transparent py-6 rounded-t-4xl ">
+    <section className="max-w-7xl mx-auto px-6 bg-gradient-to-b from-orange-100 to-transparent py-6 rounded-t-4xl mt-4 ">
       <p className="font-bold text-xl uppercase tracking-wider text-center text-neutral-600">
         recently added party palace
       </p>

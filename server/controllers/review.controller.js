@@ -68,3 +68,35 @@ export const createReviewController = async (req, res) => {
     });
   }
 };
+
+//get review controller
+export const getReviewController = async (req, res) => {
+  try {
+    const { partyPalaceId } = req.query;
+
+    if (!partyPalaceId) {
+      return res.status(400).json({
+        msg: "partyPalaceId is required",
+        error: true,
+        success: false,
+      });
+    }
+
+    const findReview = await Review.findById(partyPalaceId).populate(
+      "reviewBy"
+    );
+
+    return res.status(200).json({
+      msg: "Review found successfully",
+      error: false,
+      success: true,
+      data: findReview,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      msg: error.message || error || "Internal server error",
+      success: false,
+      error: true,
+    });
+  }
+};

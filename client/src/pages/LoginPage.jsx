@@ -16,6 +16,7 @@ import { login } from "../redux/features/userSlice";
 import { toast } from "react-toastify";
 import axios from "axios";
 import adminContext from "../context/adminContext";
+import LoginImage from "../assets/images/login-image.jpg";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -69,8 +70,8 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="grid grid-cols-2 place-items-center min-h-[100vh] ">
-      <div className="p-8 rounded-lg  w-full max-w-lg ">
+    <div className="flex items-center justify-between h-screen bg-gradient-to-b from-neutral-50 to-transparent ">
+      <div className="p-0 rounded-lg  w-full max-w-lg mx-auto">
         <div className="text-4xl  mb-10 flex items-center gap-4 tracking-wider text-[#FBAD34] font-bold">
           {/* <FaHandPaper className="text-orange-500 " /> */}
           Login to Party Palace{" "}
@@ -138,14 +139,12 @@ const LoginPage = () => {
           </Link>
         </p>
       </div>
-      <div className=" rounded-lg shadow-xl w-full max-w-xl ">
-        {/* <div className="">
-          <Lottie
-            animationData={LoginAnimationData}
-            loop={true}
-            autoplay={true}
-          />
-        </div> */}
+      <div className=" rounded-lg shadow-xl w-full max-w-xl bg-neutral-100 h-screen">
+        <img
+          src={LoginImage}
+          alt="login page image"
+          className="w-full h-full object-cover"
+        />
       </div>
     </div>
   );
