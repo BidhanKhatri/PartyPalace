@@ -81,9 +81,12 @@ export const UserProvider = ({ children }) => {
   const getSearchData = async (search, page = 1) => {
     try {
       setLoading(true);
-      const res = await axios.get(`/proxy/api/partypalace/get-all?page=${page}&limit=12`, {
-        params: { search },
-      });
+      const res = await axios.get(
+        `/proxy/api/partypalace/get-all?page=${page}&limit=12`,
+        {
+          params: { search },
+        }
+      );
       if (res.data && res.data.success) {
         // console.log(res.data.data);
         setSearchData((prevData) => {
@@ -247,6 +250,31 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  //add the review
+  const createReview = async (data) => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      console.log("receving review data at context", data);
+
+      setLoading(true);
+
+      const res = await axios.post("/proxy/api/review/create", data, config);
+      if (res.data && res.data.success) {
+        toast.success(res.data.msg);
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.msg);
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const value = {
     bookingData,
     searchData,
@@ -268,6 +296,7 @@ export const UserProvider = ({ children }) => {
     getTopLikedPartyPalace,
     getPartyPalaceByCategory,
     getAllCategory,
+    createReview
   };
 
   return <userContext.Provider value={value}>{children}</userContext.Provider>;

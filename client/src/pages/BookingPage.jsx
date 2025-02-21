@@ -122,6 +122,8 @@ const BookingPage = () => {
     toast.success(isLiked ? "Removed from favorites" : "Added to favorites");
   };
 
+
+
   return (
     <>
       {/* new UI */}

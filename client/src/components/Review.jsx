@@ -1,75 +1,101 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { FaArrowAltCircleRight, FaStar } from "react-icons/fa";
+import { useParams } from "react-router-dom";
+import userContext from "../context/userContext";
+import { toast } from "react-toastify";
 
 const Review = () => {
   const [rating, setRating] = useState(null);
   const [hover, setHover] = useState(null);
-  console.log(rating);
+  const [reviewData, setReviewData] = useState({});
+  const { id: partyPalaceId } = useParams() || {};
+  const { createReview, loading } = useContext(userContext) || {};
+
+  // Handle review data update
+  const handleReviewData = (e) => {
+    const { name, value } = e.target;
+    setReviewData({ ...reviewData, [name]: value, partyPalaceId });
+  };
+
+  // Submit review
+  const handleReviewSubmit = (e) => {
+    e.preventDefault();
+    if (!reviewData.comment || !reviewData.ratings) {
+      toast.error("provide both a comment and rating.");
+      return;
+    }
+    createReview(reviewData);
+    setReviewData((prev) => ({
+      ...prev,
+      comment: "",
+      ratings: null,
+    }));
+    setRating(null)
+  };
+
   return (
-    <section className="bg-neutral-50  w-full  rounded-md p-2 max-w-7xl mx-auto">
-      {/* This is the review section  */}
+    <section className="bg-neutral-50 w-full rounded-md p-2 max-w-7xl mx-auto">
       <p className="font-bold text-2xl tracking-wider">Customer Reviews</p>
-      <div className="flex gap-4  mt-4">
-        <div className="w-12 h-12 rounded-full overflow-hidden ">
-          <img
-            src={""}
-            className="w-full h-full object-cover shrink-0 bg-neutral-200"
-          />
+
+      {/* Example Review */}
+      <div className="flex gap-4 mt-4">
+        <div className="w-12 h-12 rounded-full overflow-hidden">
+          <img src={""} className="w-full h-full object-cover bg-neutral-200" />
         </div>
         <div className="w-full">
-          <div className="flex items-center justify-between  ">
-            <span className="font-semibold ">UserName</span>
-            <span className="tex-sm text-neutral-500">2 days ago</span>
+          <div className="flex items-center justify-between">
+            <span className="font-semibold">UserName</span>
+            <span className="text-sm text-neutral-500">2 days ago</span>
           </div>
           <span className="flex gap-1 mt-1">
-            {Array(5)
-              .fill()
-              .map((_, i) => (
-                <FaStar key={i} className="text-[#FBAD34]" size={20} />
-              ))}
+            {[...Array(5)].map((_, i) => (
+              <FaStar key={i} className="text-[#FBAD34]" size={20} />
+            ))}
           </span>
-          <p className="mt-1 text-neutral-500 break-words  ">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente,
-            minus Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-            Quisquam, illum dolorum. Earum nemo beatae totam eligendi deleniti
-            nobis a soluta, cum minus fuga magnam consequuntur officiis sequi
-            debitis cupiditate nisi maiores asperiores! Quidem suscipit quasi
-            cupiditate facilis fugiat maiores? Deleniti eligendi earum quisquam
-            molestiae obcaecati maiores ipsum nobis doloribus, minima ea
-            officiis soluta accusamus incidunt rem quia. Doloribus magnam
-            numquam eveniet vel explicabo! Odit sed distinctio perferendis aut
-            eius temporibus sapiente consectetur suscipit officia iure excepturi
-            ea enim accusamus nostrum voluptates facilis, repudiandae aliquam
-            sequi error laborum? Eaque voluptatibus quia placeat amet? Quidem
-            voluptates repellat aperiam? Nihil accusantium sunt iure.
+          <p className="mt-1 text-neutral-500 break-words">
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit.
           </p>
         </div>
       </div>
-      <div className="bg-neutral-100 w-full  mt-4 rounded-md p-2">
+
+      {/* Review Form */}
+      <form className="bg-neutral-100 w-full mt-4 rounded-md p-2">
         <p className="font-semibold text-neutral-800 text-xl tracking-wide">
           Write a Review
         </p>
         <textarea
-          className="w-full bg-white rounded-md p-2 mt-2 border border-neutral-300 resize-none outline-none  focus:border-[#FBAD34]"
+          className="w-full bg-white rounded-md p-2 mt-2 border border-neutral-300 resize-none outline-none focus:border-[#FBAD34]"
           rows={4}
           maxLength={200}
-          placeholder="share your thoughts about our place"
+          placeholder="Share your thoughts about our place"
+          value={reviewData.comment || ""}
+          name="comment"
+          onChange={handleReviewData}
         />
+
+        {/* Star Rating */}
         <div className="flex items-center justify-between mt-4">
           <div className="flex gap-2">
             {[...Array(5)].map((_, index) => {
               const currentRating = index + 1;
-              const starId = `start-${currentRating}`;
               return (
-                <>
+                <React.Fragment key={currentRating}>
                   <input
                     type="radio"
-                    id={starId}
-                    onClick={() => setRating(currentRating)}
+                    id={`star-${currentRating}`}
+                    onClick={() => {
+                      setRating(currentRating);
+                      setReviewData((prev) => ({
+                        ...prev,
+                        ratings: currentRating,
+                      }));
+                    }}
                     value={currentRating}
                     hidden
+                    name="ratings"
+                    onChange={handleReviewData}
                   />
-                  <label htmlFor={starId}>
+                  <label htmlFor={`star-${currentRating}`}>
                     <FaStar
                       color={
                         currentRating <= (hover || rating) ? "#FBAD34" : ""
@@ -80,15 +106,29 @@ const Review = () => {
                       className="cursor-pointer"
                     />
                   </label>
-                </>
+                </React.Fragment>
               );
             })}
           </div>
-          <button className="p-2 rounded-md bg-black text-white  tracking-wide cursor-pointer flex items-center gap-2">
-            <FaArrowAltCircleRight /> Submit Review
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            onClick={handleReviewSubmit}
+            className="p-2 rounded-md bg-black text-white tracking-wide cursor-pointer flex items-center gap-2"
+            disabled={loading}
+          >
+            {loading ? (
+              "Submitting..."
+            ) : (
+              <>
+                <FaArrowAltCircleRight />
+                Submit Review
+              </>
+            )}
           </button>
         </div>
-      </div>
+      </form>
     </section>
   );
 };
