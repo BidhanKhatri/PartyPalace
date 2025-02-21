@@ -108,3 +108,76 @@ export const getReviewController = async (req, res) => {
     });
   }
 };
+
+//update review controller
+export const updateMyReviewController = async (req, res) => {
+  try {
+    const { partyPalaceId, _id: reviewId, comment } = req.body;
+    const userId = req.userId; //from middleware
+    const userRole = req.userRole;
+
+    if (userRole !== "user") {
+      return res.status(401).json({
+        msg: "Only user can update review",
+        success: false,
+        error: true,
+      });
+    }
+
+    if (!partyPalaceId || !reviewId) {
+      return res.status(400).json({
+        msg: "partyPalaceId & reviewId is required",
+        success: false,
+        error: true,
+      });
+    }
+
+    if (!comment) {
+      return res.status(400).json({
+        msg: "new comment is required",
+        success: false,
+        error: true,
+      });
+    }
+
+    //find the review with partyPalaceId
+    const findReview = await Review.findOne({
+      _id: reviewId,
+      partyPalaceId,
+      reviewBy: userId,
+    }); // return object
+
+    console.log(findReview);
+
+    if (findReview !== null) {
+      const updateReview = await Review.findOneAndUpdate(
+        { _id: findReview._id },
+        {
+          $set: { "reviews.comment": comment, "reviews.updatedAt": Date.now() },
+        },
+        { new: true }
+      );
+
+      return res.status(200).json({
+        msg: "Review updated successfuly",
+        success: true,
+        error: false,
+        data: updateReview,
+      });
+    }
+
+    if (findReview === null) {
+      return res.status(400).json({
+        msg: "Unable to update review",
+        success: false,
+        error: true,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      msg: error.message || error || "Internal server error",
+      success: false,
+      error: true,
+    });
+  }
+};
