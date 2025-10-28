@@ -18,6 +18,10 @@ import NotificationPage from "../adminPages/NotificationPage";
 import UserStatusListPage from "../adminPages/UserStatusListPage";
 import ChatPage from "../pages/ChatPage";
 import AdminChatPage from "../adminPages/AdminChatPage";
+import CameraManPage from "../pages/CameraManPage";
+import NearestCameraMan from "../pages/NearestCameraMan";
+import CameraManMapView from "../components/CameraManMapView";
+import QuickSearchPage from "../pages/QuickSearchPage";
 
 const router = createBrowserRouter([
   {
@@ -40,6 +44,18 @@ const router = createBrowserRouter([
         path: "chat/:receiverId/:partyPalaceId",
         element: <ChatPage />,
       },
+      {
+        path: "/cameraman",
+        element: <CameraManPage />,
+      },
+      {
+        path: "/nearest-cameraman",
+        element: <NearestCameraMan />,
+      },
+      {
+        path: "/quick-search",
+        element: <QuickSearchPage />,
+      },
     ],
   },
 
@@ -47,6 +63,12 @@ const router = createBrowserRouter([
     path: "/login",
     element: <LoginPage />,
   },
+
+  {
+    path: "/cameraman-mapview",
+    element: <CameraManMapView />,
+  },
+
   {
     path: "/admin",
     element: <IsAdminRoute />,

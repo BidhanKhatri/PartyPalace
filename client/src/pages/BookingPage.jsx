@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import { setSelectedPartyPalace } from "../redux/features/partypalaceSlice";
@@ -17,6 +17,7 @@ import {
   FaChevronRight,
 } from "react-icons/fa";
 import Review from "../components/Review";
+import MacScrollEffect from "../utils/MacScrollEffect";
 
 const BookingPage = () => {
   const { partypalace, selectedPartyPalace } = useSelector(
@@ -30,6 +31,7 @@ const BookingPage = () => {
   const [startDate, setStartDate] = useState(null);
   const [hoursBooked, setHoursBooked] = useState(1);
   const [isLiked, setIsLiked] = useState(false);
+  const scrollTopRef = useRef(null);
   console.log("selectedPartyPalace ", selectedPartyPalace);
 
   useEffect(() => {
@@ -122,13 +124,11 @@ const BookingPage = () => {
     toast.success(isLiked ? "Removed from favorites" : "Added to favorites");
   };
 
-
-
   return (
-    <>
+    <MacScrollEffect>
       {/* new UI */}
 
-      <section className="mt-14 max-w-7xl mx-auto px-6">
+      <section className="mt-14 max-w-7xl mx-auto px-6 min-h-screen">
         <div className="grid lg:grid-cols-2 gap-10">
           {/* Left Section: Image Gallery */}
           <div className="space-y-4  flex flex-col justify-center">
@@ -316,7 +316,7 @@ const BookingPage = () => {
           <Review />
         </div>
       </section>
-    </>
+    </MacScrollEffect>
   );
 };
 

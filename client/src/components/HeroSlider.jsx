@@ -1,32 +1,29 @@
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
+import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import HeroSlideCard from "./HeroSlideCard";
 import { useSelector } from "react-redux";
 
 const HeroSlider = () => {
-
-  const {partypalace} = useSelector((state)=> state?.partypalace);
+  const { partypalace } = useSelector((state) => state?.partypalace);
   return (
     <Swiper
-      spaceBetween={10}
+      spaceBetween={0}
       slidesPerView={5}
-      modules={[Navigation]}
+      modules={[Navigation, Autoplay]}
       navigation
-      className="bg-black max-w-6xl mx-auto rounded-md"
+      autoplay={{ delay: 1000, disableOnInteraction: false }}
+      className="bg-black max-w-6xl mx-auto rounded-md "
     >
-
-      {
-        partypalace.length > 0 && partypalace?.map((pp,i)=>(
-          <SwiperSlide key={i} className="p-4 ">
-          <HeroSlideCard data={pp} />
-        </SwiperSlide>
-        ))
-      }
-     
-    
+      {partypalace.length > 0 &&
+        partypalace?.map((pp, i) => (
+          <SwiperSlide key={i} className="px-2 py-4 ">
+            <HeroSlideCard data={pp} />
+          </SwiperSlide>
+        ))}
     </Swiper>
   );
 };

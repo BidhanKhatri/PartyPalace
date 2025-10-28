@@ -3,10 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   setBookedPartyPalaceLength,
   setPartyPalace,
+  setReviews,
 } from "../redux/features/partypalaceSlice";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { set } from "mongoose";
 
 const userContext = createContext();
 
@@ -20,12 +20,17 @@ export const UserProvider = ({ children }) => {
   const [categoryData, setCategoryData] = useState([]);
   const [allCategory, setAllCategory] = useState([]);
   const [otherCategoryData, setOtherCategoryData] = useState({});
+  const [quickSearchPaginationData, setQuickSearchPaginationData] = useState(
+    []
+  );
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const { token } = useSelector((state) => state?.user);
   const dispatch = useDispatch();
 
   //getting as a user booking data
   const getBookingData = useCallback(async () => {
+    if (!token) return;
     try {
       const config = {
         headers: {
@@ -45,6 +50,7 @@ export const UserProvider = ({ children }) => {
 
   //getting party recently added palace state
   const fetchAllPartyPalace = async () => {
+    if (!token) return;
     try {
       const res = await axios.get("/proxy/api/partypalace/get-all");
       if (res && res.data.success) {
@@ -219,6 +225,7 @@ export const UserProvider = ({ children }) => {
 
   // get top liked partypalace
   const getTopLikedPartyPalace = async () => {
+    if (!token) return;
     try {
       const config = {
         headers: {
@@ -275,6 +282,65 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  //get all reviwes for specific partypalace
+  const getReviews = async (partyPalaceId) => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      setLoading(true);
+      const res = await axios.get(
+        `/proxy/api/review/getReview?partyPalaceId=${partyPalaceId}`,
+        config
+      );
+      if (res.data && res.data.success) {
+        dispatch(setReviews(res.data.data));
+      }
+    } catch (error) {
+      setError(error?.response?.data?.msg);
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  //get by category  data
+  const getPartyPalaceByCategoryAndAvailableDates = async (
+    searchData,
+    page
+  ) => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const payload = {
+        category: searchData.category,
+        targetedDate: searchData.targetedDate,
+        page,
+      };
+
+      const res = await axios.post(
+        `/proxy/api/partypalace/get-by-category-date`,
+        payload,
+        config
+      );
+
+      if (res.data && res.data.success) {
+        setQuickSearchPaginationData(res.data);
+        // console.log("res.data", res.data);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.response?.data?.msg);
+    }
+  };
+
   const value = {
     bookingData,
     searchData,
@@ -284,6 +350,7 @@ export const UserProvider = ({ children }) => {
     categoryData,
     otherCategoryData,
     allCategory,
+    error,
     getBookingData,
     fetchAllPartyPalace,
     handleCancel,
@@ -296,7 +363,11 @@ export const UserProvider = ({ children }) => {
     getTopLikedPartyPalace,
     getPartyPalaceByCategory,
     getAllCategory,
-    createReview
+    createReview,
+    getReviews,
+    setError,
+    getPartyPalaceByCategoryAndAvailableDates,
+    quickSearchPaginationData,
   };
 
   return <userContext.Provider value={value}>{children}</userContext.Provider>;

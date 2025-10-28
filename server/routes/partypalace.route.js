@@ -5,6 +5,7 @@ import {
   getAllPartyPalace,
   getOnePartyPalaceController,
   getPartyPalaceByCategory,
+  getPartyPalaceByCategoryAndAvailableDates,
   getPartyPalaceByFilter,
   getTopLikedPartyPalace,
   likesController,
@@ -49,5 +50,10 @@ partyPalaceRouter.get(
 );
 partyPalaceRouter.get("/topLiked", authMiddleware, getTopLikedPartyPalace);
 partyPalaceRouter.post("/byFilter", authMiddleware, getPartyPalaceByFilter);
+partyPalaceRouter.post(
+  "/get-by-category-date",
+  authMiddleware,
+  getPartyPalaceByCategoryAndAvailableDates
+);
 
 export default partyPalaceRouter;

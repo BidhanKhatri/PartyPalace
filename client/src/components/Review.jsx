@@ -1,15 +1,28 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FaArrowAltCircleRight, FaStar } from "react-icons/fa";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import userContext from "../context/userContext";
 import { toast } from "react-toastify";
-
+import { socket } from "../../socket";
+import { setReviews } from "../redux/features/partypalaceSlice";
+import { useDispatch, useSelector } from "react-redux";
 const Review = () => {
   const [rating, setRating] = useState(null);
   const [hover, setHover] = useState(null);
   const [reviewData, setReviewData] = useState({});
   const { id: partyPalaceId } = useParams() || {};
-  const { createReview, loading } = useContext(userContext) || {};
+  const { createReview, getReviews, loading, error } =
+    useContext(userContext) || {};
+  const { reviews } = useSelector((state) => state?.partypalace);
+  const dispatch = useDispatch();
+  const location = useLocation();
+
+  console.log("get review data", reviews);
+
+  //get reviews
+  useEffect(() => {
+    getReviews(partyPalaceId);
+  }, [location.pathname.includes("booking")]);
 
   // Handle review data update
   const handleReviewData = (e) => {
@@ -30,33 +43,69 @@ const Review = () => {
       comment: "",
       ratings: null,
     }));
-    setRating(null)
+    setRating(null);
   };
+
+  useEffect(() => {
+    const getRealTimeReview = (data) => {
+      const exists = reviews.some((el) => el._id === data._id);
+      if (!exists) {
+        dispatch(setReviews([data, ...reviews]));
+      }
+    };
+
+    socket.on("createReview", getRealTimeReview);
+
+    return () => socket.off("createReview", getRealTimeReview);
+  }, [dispatch]);
 
   return (
     <section className="bg-neutral-50 w-full rounded-md p-2 max-w-7xl mx-auto">
       <p className="font-bold text-2xl tracking-wider">Customer Reviews</p>
 
       {/* Example Review */}
-      <div className="flex gap-4 mt-4">
-        <div className="w-12 h-12 rounded-full overflow-hidden">
-          <img src={""} className="w-full h-full object-cover bg-neutral-200" />
+
+      {reviews?.length === 0 && (
+        <div className="flex flex-col items-center gap-4">
+          <p className="text-neutral-500">{error}</p>
         </div>
-        <div className="w-full">
-          <div className="flex items-center justify-between">
-            <span className="font-semibold">UserName</span>
-            <span className="text-sm text-neutral-500">2 days ago</span>
+      )}
+
+      {reviews?.length > 0 &&
+        reviews?.map((review) => (
+          <div className="flex gap-4 mt-8  ">
+            <div className="w-12 h-12 rounded-full overflow-hidden">
+              <img
+                src={""}
+                className="w-full h-full object-cover bg-neutral-200"
+              />
+            </div>
+            <div className="w-full">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold">
+                  {review.reviewBy.username}
+                </span>
+                <span className="text-sm text-neutral-500">2 days ago</span>
+              </div>
+              <span className="flex gap-1 mt-1">
+                {[...Array(5)].map((_, i) => (
+                  <FaStar
+                    key={i}
+                    className={
+                      i < review.reviews.ratings
+                        ? "text-[#FBAD34]"
+                        : "text-gray-300"
+                    }
+                    size={20}
+                  />
+                ))}
+              </span>
+              <p className="mt-1 text-neutral-500 break-words">
+                {review.reviews.comment}
+              </p>
+            </div>
           </div>
-          <span className="flex gap-1 mt-1">
-            {[...Array(5)].map((_, i) => (
-              <FaStar key={i} className="text-[#FBAD34]" size={20} />
-            ))}
-          </span>
-          <p className="mt-1 text-neutral-500 break-words">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-          </p>
-        </div>
-      </div>
+        ))}
 
       {/* Review Form */}
       <form className="bg-neutral-100 w-full mt-4 rounded-md p-2">

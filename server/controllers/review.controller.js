@@ -1,4 +1,5 @@
 import Review from "../models/review.model.js";
+import { io } from "../utils/socketConn.js";
 
 // create review controller;
 export const createReviewController = async (req, res) => {
@@ -45,6 +46,9 @@ export const createReviewController = async (req, res) => {
       reviewBy: userId,
     });
     await createReview.save();
+
+    //socket implementation
+    io.emit("createReview", createReview);
 
     if (!createReview) {
       return res.status(400).json({

@@ -7,6 +7,7 @@ const partypalaceSlice = createSlice({
     selectedPartyPalace: null,
     bookedPartyPalaceLength: null,
     myPartyPalace: [],
+    reviews: [],
   },
   reducers: {
     setPartyPalace: (state, action) => {
@@ -26,6 +27,13 @@ const partypalaceSlice = createSlice({
     setMyPartyPalace: (state, action) => {
       state.myPartyPalace = action?.payload;
     },
+    setReviews: (state, action) => {
+      if (Array.isArray(action.payload)) {
+        state.reviews = action.payload;
+      } else {
+        state.reviews = [action.payload, ...state.reviews];
+      }
+    },
   },
 });
 export const {
@@ -33,5 +41,6 @@ export const {
   setSelectedPartyPalace,
   setBookedPartyPalaceLength,
   setMyPartyPalace,
+  setReviews,
 } = partypalaceSlice.actions;
 export default partypalaceSlice.reducer;

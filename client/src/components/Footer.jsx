@@ -9,6 +9,7 @@ import {
   FaLinkedinIn,
 } from "react-icons/fa";
 
+
 const Footer = () => {
   const location = useLocation();
   const [email, setEmail] = useState("");
@@ -25,8 +26,8 @@ const Footer = () => {
   }
 
   return (
-    <footer className="bg-gradient-to-t from-gray-200 to-transparent">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <footer className={`bg-gradient-to-t from-gray-200 to-transparent ${location.pathname === "/search" ? "hidden" : ""}`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">About Us</h3>

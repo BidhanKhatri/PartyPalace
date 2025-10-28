@@ -37,6 +37,7 @@ const RecentPalace = () => {
   };
 
   const fetchAllPartyPalace = async () => {
+    if (!token) return;
     try {
       const res = await axios.get("/proxy/api/partypalace/get-all");
       if (res && res.data.success) {
@@ -80,12 +81,18 @@ const RecentPalace = () => {
   }, []);
 
   return (
-    <section className="max-w-7xl mx-auto px-6 bg-gradient-to-b from-orange-100 to-transparent py-6 rounded-t-4xl mt-4 ">
-      <p className="font-bold text-xl uppercase tracking-wider text-center text-neutral-600">
-        recently added party palace
-      </p>
-      <SubHeading />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4  overflow-y-hidden   pb-4 ">
+    <section className="max-w-7xl mx-auto px-10 bg-gradient-to-b from-orange-100 to-transparent py-6 rounded-t-4xl ">
+      <div className="flex items-center  justify-between">
+        <p className="font-bold text-xl uppercase tracking-wider  text-neutral-700">
+          Recently added Event Places
+        </p>
+        {/* <SubHeading subheading="top liked palaces" /> */}
+
+        <p className="font-semibold text-sm select-none cursor-pointer text-neutral-700">
+          View All (20)
+        </p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-4  overflow-y-hidden   pb-4 ">
         {/* implemented this logic if there is more than 8 partypalace in the array for maintaing UI of pagination, as I am sending limit 8 for this pagination */}
         {partypalace.length > 8 &&
           partypalace.slice(0, partypalace.length - 1).map((pp, index) => (

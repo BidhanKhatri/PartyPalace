@@ -1,6 +1,7 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import {
   FaBook,
+  FaCamera,
   FaFacebook,
   FaHome,
   FaInstagram,
@@ -10,14 +11,21 @@ import {
   FaWhatsapp,
 } from "react-icons/fa";
 import { Menu, X } from "lucide-react";
+import { IoMdSettings } from "react-icons/io";
 // import Logo from "../assets/images/logo.png";
 import { IoLocationSharp } from "react-icons/io5";
-import { FaBookBookmark, FaScrewdriverWrench } from "react-icons/fa6";
+import {
+  FaArrowLeft,
+  FaBookBookmark,
+  FaScrewdriver,
+  FaScrewdriverWrench,
+  FaUser,
+} from "react-icons/fa6";
 import Banner1 from "../assets/images/banner1.jpg";
 import { TypeAnimation } from "react-type-animation";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { logout } from "../redux/features/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import ShowBooking from "./ShowBooking";
@@ -94,9 +102,9 @@ const Navbar = () => {
     <nav
       className={` ${
         location.pathname === "/"
-          ? "bg-transparent text-neutral-200 "
+          ? "bg-white text-neutral-600 "
           : " bg-white shadow-lg text-neutral-600   "
-      }  fixed w-full top-0 left-0 z-30 py-2 lg:py-0`}
+      }  fixed w-full top-0 left-0 z-30 py-2 lg:py-0 `}
       id="navbar"
     >
       <div className="max-w-7xl mx-auto px-6 ">
@@ -111,15 +119,21 @@ const Navbar = () => {
             </a>
 
             <div className="hidden md:flex items-center space-x-1">
-              <a className="py-4 px-2  hover:text-[#FBAD34] transition duration-300 cursor-pointer flex items-center gap-1">
+              <Link
+                to={"/"}
+                className="py-4 px-2  hover:text-[#FBAD34] transition duration-300 cursor-pointer flex items-center gap-1"
+              >
                 <FaHome />
                 Home
-              </a>
+              </Link>
 
-              <a className="py-4 px-2  hover:text-[#FBAD34] transition duration-300 cursor-pointer flex items-center gap-1">
-                <FaScrewdriverWrench />
-                Services
-              </a>
+              <Link
+                to={"/cameraman"}
+                className="py-4 px-2  hover:text-[#FBAD34] transition duration-300 cursor-pointer flex items-center gap-1"
+              >
+                <FaCamera />
+                CameraMan
+              </Link>
               <a className="py-4 px-2  hover:text-[#FBAD34] transition duration-300 cursor-pointer flex items-center gap-1">
                 <FaPhoneVolume />
                 Contact
@@ -182,28 +196,38 @@ const Navbar = () => {
               <ShowBooking close={toggleBookMenu} isBookOpen={isBookOpen} />
             )}
 
-            <div className="group relative cursor-pointer">
-              <div className="size-10 rounded-full bg-neutral-200 group-hover:ring-3 ring-neutral-300 ring-1 transition-all duration-500 ease-in-out overflow-hidden shadow-md">
+            <div className="group relative">
+              <div className="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 overflow-hidden transition-all duration-200 hover:ring-2 hover:ring-gray-300">
                 <img
                   src={Banner1}
-                  alt="img"
-                  className="flex justify-center items-center w-full h-full object-cover "
+                  alt="Profile"
+                  className="w-full h-full object-cover"
                 />
               </div>
-              <ul className="opacity-0 scale-95 min-w-56 text-neutral-600 bg-white backdrop-blur-xl rounded-md absolute top-10 -right-2 p-4 flex-col gap-4 divide-y divide-neutral-400 transition-all duration-300 ease-in-out group-hover:opacity-100 group-hover:scale-100 group-hover:flex pointer-events-none group-hover:pointer-events-auto shadow-md">
-                <a className="pb-2 cursor-pointer hover:text-[#FBAD34]">
-                  Profile
-                </a>
-                <a className="pb-2 cursor-pointer hover:text-[#FBAD34]">
-                  Settings
-                </a>
-                <a
-                  onClick={handleLogout}
-                  className="pb-2 cursor-pointer hover:text-[#FBAD34]"
-                >
-                  Logout
-                </a>
-              </ul>
+
+              <div className="opacity-0 scale-95 min-w-56 text-neutral-600 bg-white backdrop-blur-xl rounded-md absolute top-10 -right-2 p-2 flex-col gap-4 divide-y divide-neutral-400 transition-all duration-300 ease-in-out group-hover:opacity-100 group-hover:scale-100 group-hover:flex pointer-events-none group-hover:pointer-events-auto shadow-md">
+                <div className="py-1">
+                  <Link
+                    to={"/profile"}
+                    className="flex flex-row items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                  >
+                    <FaUser /> Profile
+                  </Link>
+                  <Link
+                    to={"/setting"}
+                    className="flex flex-row items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                  >
+                    <IoMdSettings />
+                    Setting
+                  </Link>
+                  <Link
+                    onClick={handleLogout}
+                    className="flex flex-row items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 cursor-pointer"
+                  >
+                    <FaArrowLeft /> Logout
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
           <div className="md:hidden flex items-center">

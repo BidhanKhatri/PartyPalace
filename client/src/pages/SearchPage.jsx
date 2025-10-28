@@ -12,7 +12,7 @@ const SearchPage = () => {
   const [color, setColor] = useState("#FBAD34");
 
   return (
-    <section className="max-w-7xl mx-auto bg-gradient-to-b from-neutral-100 to-transparent mt-14 min-h-[calc(100vh-64px)]">
+    <section className="max-w-7xl mx-auto bg-gradient-to-b from-neutral-100 to-transparent mt-14 min-h-[calc(100vh-64px)] ">
       <div className="flex flex-col md:flex-row ">
         {/* Filter Search Component */}
         <div className="w-full md:w-1/4">
@@ -20,7 +20,7 @@ const SearchPage = () => {
         </div>
 
         {/* Loader or No Results */}
-        <div className="w-full flex justify-center items-center">
+        <div className="w-full flex justify-center items-center ">
           {loading ? (
             <BeatLoader
               color={color}
@@ -38,7 +38,7 @@ const SearchPage = () => {
           ) : (
             // Venue Cards Grid
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full p-4 h-[calc(100vh-64px)] overflow-x-none overflow-y-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full p-4 h-[calc(100vh-64px)] overflow-x-none overflow-y-scroll ">
               {searchData.map((sd) => (
                 <div key={sd._id} className="w-full">
                   <VenueCard
@@ -55,6 +55,7 @@ const SearchPage = () => {
                   />
                 </div>
               ))}
+
               {/* <div className="w-full col-span-3 flex items-center justify-center gap-2">
                 <button className="bg-pink-500 text-white p-2">prev</button>
                 <button className="bg-green-500 text-white p-2">next</button>

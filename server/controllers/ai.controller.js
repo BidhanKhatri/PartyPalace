@@ -67,7 +67,7 @@ export const DeepSeekSuggestPartyPalace = async (req, res) => {
         error: true,
       });
 
-       // Mock DeepSeek API response
+    // Mock DeepSeek API response
     const mockDeepSeekResponse = {
       intent: "cheapest",
       entities: [],
@@ -78,17 +78,6 @@ export const DeepSeekSuggestPartyPalace = async (req, res) => {
         Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
       },
     };
-
-    // const deepseekResponse = await axios.post(
-    //   process.env.DEEPSEEK_API_URL,
-    //   {
-    //     text: userMessage,
-    //     api_key: process.env.DEEPSEEK_API_KEY,
-    //   },
-    //   config
-    // );
-
-    // console.log(deepseekResponse.data);
 
     const { intent, entities } = mockDeepSeekResponse;
 

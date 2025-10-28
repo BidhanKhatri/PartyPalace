@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
-import SubHeading from "../components/SubHeading";
 import userContext from "../context/userContext";
 import VenueCard from "../components/VenueCard";
 import { useSelector } from "react-redux";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import HomeSkeletonDiv from "../components/HomeSkeletonDiv";
 
 const CategoryLayout = () => {
   const { userId } = useSelector((state) => state?.user);
@@ -14,16 +14,19 @@ const CategoryLayout = () => {
     getAllCategory,
     allCategory,
   } = useContext(userContext);
-  const [page, setPage] = useState(1);
-  //   console.log(categoryData);
-  //   console.log(page);
+
+  const [page, setPage] = useState({}); // ✅ Initialize as an object
+
+  useEffect(() => {
+    getAllCategory();
+  }, []);
 
   useEffect(() => {
     const fetchAllCategoryAndDisplay = async () => {
       if (allCategory.length > 0) {
         try {
           const promises = allCategory.map((cat) =>
-            getPartyPalaceByCategory(cat.name, page)
+            getPartyPalaceByCategory(cat.name, page[cat.name] || 1)
           );
           await Promise.all(promises);
         } catch (error) {
@@ -33,89 +36,89 @@ const CategoryLayout = () => {
     };
 
     fetchAllCategoryAndDisplay();
-  }, [page, allCategory]);
+  }, [JSON.stringify(page), allCategory]); // ✅ Convert page object to string
 
-  useEffect(() => {
-    getAllCategory();
-  }, []);
   return (
     <>
-      {allCategory.map((c, i) => (
-        <section key={i} className="max-w-7xl mx-auto px-6 py-6  ">
-          <p className="font-bold text-xl uppercase tracking-wider text-center text-neutral-600">
-            {c.name}
-          </p>
-          <SubHeading subheading={"categories"} />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4  overflow-y-hidden  pb-4 ">
-            {(categoryData[c.name] || []).map((pp, index) => (
-              <div key={pp._id}>
-                <VenueCard
-                  partyPalaceId={pp._id}
-                  name={pp.name}
-                  description={pp.description}
-                  location={pp.location}
-                  capacity={pp.capacity}
-                  pricePerHour={pp.pricePerHour}
-                  unavailableDates={pp.unavailableDates}
-                  images={pp.images}
-                  //   toggleLike={toggleLike}
-                  //   isLiked={isLiked}
-                  userId={userId}
-                  category={pp.category}
-                />
-              </div>
-            ))}
-          </div>
+      {allCategory.map((c, i) => {
+        const currentPage = page[c.name] || 1;
+        const totalPages = otherCategoryData[c.name]?.totalPage || 1;
 
-          <div className="flex justify-center items-center mt-2">
-            <div className="flex gap-4 items-center">
-              <button
-                onClick={() =>
-                  setPage((prev) => ({
-                    ...prev,
-                    [c.name]: (prev[c.name] || 1) - 1,
-                  }))
-                }
-                disabled={(page[c.name] || 1) === 1}
-                className={`px-4 py-2 rounded-md text-white font-semibold transition-colors shadow-sm 
-        ${
-          (page[c.name] || 1) === 1
-            ? "bg-gray-300 cursor-not-allowed"
-            : "bg-[#FBAD34] hover:bg-[#e69d2e] cursor-pointer"
-        }`}
-              >
-                <FaArrowLeft />
-              </button>
-              <div className="rounded-lg px-4 py-2 inline-flex items-center">
-                <span className="text-base font-semibold text-neutral-500">
-                  Page <span>{page[c.name] || 1}</span> of{" "}
-                  <span>{otherCategoryData[c.name]?.totalPage || 1}</span>
-                </span>
-              </div>
-              <button
-                onClick={() =>
-                  setPage((prev) => ({
-                    ...prev,
-                    [c.name]: (prev[c.name] || 1) + 1,
-                  }))
-                }
-                disabled={
-                  (page[c.name] || 1) ===
-                  (otherCategoryData[c.name]?.totalPage || 1)
-                }
-                className={`px-4 py-2 rounded-md text-white font-semibold transition-colors shadow-sm
-        ${
-          (page[c.name] || 1) === (otherCategoryData[c.name]?.totalPage || 1)
-            ? "bg-gray-300 cursor-not-allowed"
-            : "bg-[#FBAD34] hover:bg-[#e69d2e] cursor-pointer"
-        }`}
-              >
-                <FaArrowRight />
-              </button>
+        return (
+          <section key={i} className="max-w-7xl mx-auto px-10 py-6">
+            <div className="flex items-center justify-between">
+              <p className="font-bold text-xl uppercase tracking-wider text-neutral-600">
+                Places By Category : {c.name}
+              </p>
+              <p className="font-semibold text-sm select-none cursor-pointer">
+                View All ({totalPages * 4})
+              </p>
             </div>
-          </div>
-        </section>
-      ))}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4 pb-4">
+              {(categoryData[c.name] || []).map((pp) => (
+                <VenueCard
+                  key={pp._id}
+                  {...pp}
+                  userId={userId}
+                  partyPalaceId={pp._id}
+                />
+              ))}
+              {/* Empty Skeleton Divs to Fill Grid */}
+              {Array.from({
+                length: 4 - ((categoryData[c.name]?.length || 0) % 4),
+              }).map((_, index) => (
+                <HomeSkeletonDiv key={index} />
+              ))}
+            </div>
+
+            {/* Pagination Buttons */}
+            <div className="flex justify-center items-center mt-2">
+              <div className="flex gap-4 items-center">
+                <button
+                  onClick={() =>
+                    setPage((prev) => ({
+                      ...prev,
+                      [c.name]: Math.max(1, (prev[c.name] || 1) - 1),
+                    }))
+                  }
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2 rounded-md text-white font-semibold shadow-sm ${
+                    currentPage === 1
+                      ? "bg-gray-300 cursor-not-allowed"
+                      : "bg-[#FBAD34] hover:bg-[#e69d2e]"
+                  }`}
+                >
+                  <FaArrowLeft />
+                </button>
+
+                <div className="rounded-lg px-4 py-2 inline-flex items-center">
+                  <span className="text-base font-semibold text-neutral-500">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                </div>
+
+                <button
+                  onClick={() =>
+                    setPage((prev) => ({
+                      ...prev,
+                      [c.name]: Math.min(totalPages, (prev[c.name] || 1) + 1),
+                    }))
+                  }
+                  disabled={currentPage === totalPages}
+                  className={`px-4 py-2 rounded-md text-white font-semibold shadow-sm ${
+                    currentPage === totalPages
+                      ? "bg-gray-300 cursor-not-allowed"
+                      : "bg-[#FBAD34] hover:bg-[#e69d2e]"
+                  }`}
+                >
+                  <FaArrowRight />
+                </button>
+              </div>
+            </div>
+          </section>
+        );
+      })}
     </>
   );
 };

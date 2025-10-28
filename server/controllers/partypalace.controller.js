@@ -580,3 +580,62 @@ export const getTopLikedPartyPalace = async (_, res) => {
     });
   }
 };
+
+//get party palace by category and available dates
+export const getPartyPalaceByCategoryAndAvailableDates = async (req, res) => {
+  try {
+    const { category, targetedDate } = req.body;
+    let { page, limit } = req.body;
+
+    if (!page) page = 1;
+    if (!limit) limit = 2;
+
+    if (!category || !targetedDate) {
+      return res.status(400).json({
+        msg: "category and date is required",
+        success: false,
+        error: true,
+      });
+    }
+
+    let skip = (page - 1) * limit;
+
+    const query = {
+      category,
+      unavailableDates: { $ne: targetedDate },
+    };
+
+    const [data, totalCount] = await Promise.all([
+      PartyPalace.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+
+      PartyPalace.countDocuments(query),
+    ]);
+
+    if (data.length === 0) {
+      return res.status(400).json({
+        msg: "party palace not found",
+        success: false,
+        error: true,
+      });
+    }
+
+    return res.status(200).json({
+      msg: "party palace found successfully",
+      success: true,
+      error: false,
+      data,
+      totalCount,
+      totalPage: Math.ceil(totalCount / limit),
+    });
+  } catch (error) {
+    return res.status(500).json({
+      msg: error.message || error || "Internal server error",
+      error: true,
+      success: false,
+    });
+  }
+};

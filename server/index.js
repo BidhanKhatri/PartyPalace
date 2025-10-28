@@ -13,6 +13,7 @@ import superAdminRouter from "./routes/superadmin.route.js";
 import globalRouter from "./routes/global.route.js";
 import { app, server } from "./utils/socketConn.js";
 import reviewRouter from "./routes/review.route.js";
+import cameraManRouter from "./routes/cameraman.route.js";
 
 // const app = express();
 dotenv.config();
@@ -39,6 +40,7 @@ app.use("/api/ai", aiRouter);
 app.use("/api/superadmin", superAdminRouter);
 app.use("/api/global", globalRouter);
 app.use("/api/review", reviewRouter);
+app.use("/api/cameraman", cameraManRouter);
 
 const PORT = process.env.PORT || 4444;
 
